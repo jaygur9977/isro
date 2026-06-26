@@ -1,0 +1,234 @@
+================================================================================
+  LIDMP — DEPLOYMENT GUIDE FOR RENDER.COM
+  Static Site Deployment (Vite + React)
+================================================================================
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PREREQUISITES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  - GitHub account with the LIDMP repo pushed to it
+  - Render.com account (free tier works for static sites)
+  - Groq API key (starts with gsk_...)
+  - Node.js 20+ and pnpm 9+ installed locally (for testing the build)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 1 — BUILD THE APP LOCALLY FIRST (TEST BEFORE DEPLOYING)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Run these commands from the ROOT of the monorepo:
+
+  # Step 1: Install all dependencies
+  pnpm install
+
+  # Step 2: Build the LIDMP app
+  pnpm --filter @workspace/lidmp run build
+
+  # Step 3: Check the output folder exists
+  ls artifacts/lidmp/dist/public/
+  # You should see: index.html, assets/ folder
+
+  # Step 4: Preview the build locally (optional)
+  pnpm --filter @workspace/lidmp run preview
+  # Opens at http://localhost:4173
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 2 — PUSH TO GITHUB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  # Initialize git (if not already done)
+  git init
+  git add .
+  git commit -m "Initial LIDMP commit"
+
+  # Add your GitHub remote
+  # CHANGE: replace YOUR_USERNAME and YOUR_REPO_NAME
+  git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+
+  # Push to GitHub
+  git branch -M main
+  git push -u origin main
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 3 — CREATE A STATIC SITE ON RENDER.COM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Go to https://render.com and sign in
+
+  2. Click "New +" → "Static Site"
+
+  3. Connect your GitHub account and select the LIDMP repository
+
+  4. Fill in the deployment settings:
+
+     ┌──────────────────────────────────────────────────────┐
+     │  Field                  │  Value                     │
+     ├─────────────────────────┼────────────────────────────┤
+     │  Name                   │  lidmp   (or any name)     │
+     │  Branch                 │  main                      │
+     │  Root Directory         │  (leave blank)             │
+     │  Build Command          │  SEE BELOW                 │
+     │  Publish Directory      │  SEE BELOW                 │
+     └──────────────────────────────────────────────────────┘
+
+     BUILD COMMAND (copy exactly):
+     ──────────────────────────────────────────────────────
+     npm install -g pnpm && pnpm install && pnpm --filter @workspace/lidmp run build
+     ──────────────────────────────────────────────────────
+
+     PUBLISH DIRECTORY (copy exactly):
+     ──────────────────────────────────────────────────────
+     artifacts/lidmp/dist/public
+     ──────────────────────────────────────────────────────
+
+  5. Click "Advanced" → "Add Environment Variable"
+     Add this environment variable:
+
+     Key:    VITE_GROQ_API_KEY
+     Value:  gsk_YOUR_ACTUAL_GROQ_KEY_HERE
+
+     NOTE: Replace gsk_YOUR_ACTUAL_GROQ_KEY_HERE with your real Groq API key.
+     Without this, the AI Optimizer page will show an error.
+
+  6. Click "Create Static Site"
+
+  Render will now:
+  - Clone your GitHub repo
+  - Run the build command (installs pnpm, installs packages, builds Vite app)
+  - Deploy the output from artifacts/lidmp/dist/public/
+  - Give you a URL like: https://lidmp.onrender.com
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 4 — REWRITE RULES (SPA Routing Fix)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Since LIDMP is a Single Page Application (React with client-side routing),
+Render must redirect all URLs to index.html.
+
+In Render's Static Site settings, go to "Redirects/Rewrites" and add:
+
+     Source:      /*
+     Destination: /index.html
+     Action:      Rewrite (200)
+
+This is already configured in the artifact.toml (for Replit), but you must
+set it manually in Render's dashboard.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 5 — CHANGEABLE COMMANDS REFERENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Change these values to match your setup:
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │  WHAT TO CHANGE               │  WHERE              │  DEFAULT VALUE    │
+  ├───────────────────────────────┼─────────────────────┼───────────────────┤
+  │  GitHub username              │  git remote add     │  YOUR_USERNAME    │
+  │  GitHub repo name             │  git remote add     │  YOUR_REPO_NAME   │
+  │  Git branch name              │  Render → Branch    │  main             │
+  │  Render site name             │  Render → Name      │  lidmp            │
+  │  Groq API key                 │  Render → Env Var   │  gsk_...          │
+  │  Publish directory            │  Render → Publish   │  artifacts/lidmp/ │
+  │                               │                     │  dist/public      │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+If you rename the artifact (move it from artifacts/lidmp/ to another path),
+update the Publish Directory accordingly.
+
+If you use yarn or npm instead of pnpm, change the build command:
+  Using npm:   npm install && npm run build --workspace=artifacts/lidmp
+  Using yarn:  yarn install && yarn workspace @workspace/lidmp build
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 6 — AUTOMATIC DEPLOYS (CI/CD)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Once set up, every time you push to GitHub, Render auto-deploys:
+
+  # Make a change, commit, and push
+  git add .
+  git commit -m "Update mission data"
+  git push origin main
+  # Render detects the push and rebuilds automatically within ~2 minutes
+
+To disable auto-deploy: Render Dashboard → your site → Settings → toggle off.
+
+To trigger a manual deploy: Render Dashboard → your site → "Manual Deploy"
+  → "Deploy latest commit"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PART 7 — ADDING A CUSTOM DOMAIN (optional)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Render Dashboard → your site → "Settings" → "Custom Domains"
+  2. Click "Add Custom Domain"
+  3. Enter your domain: e.g.  lidmp.yourdomain.com
+  4. Add the CNAME record in your DNS provider:
+       CNAME   lidmp   →   YOUR_RENDER_SITE.onrender.com
+  5. Render automatically provisions an SSL certificate (Let's Encrypt)
+
+  CHANGE: Replace "lidmp.yourdomain.com" with your actual domain.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROBLEM: Build fails with "pnpm: command not found"
+  FIX: The build command installs pnpm first:
+       npm install -g pnpm && pnpm install && pnpm --filter @workspace/lidmp run build
+  Make sure the full command is copied including "npm install -g pnpm &&"
+
+PROBLEM: Build fails with "Cannot find package @workspace/db"
+  FIX: Run locally first: pnpm install
+       Then commit any lockfile changes: git add pnpm-lock.yaml && git commit
+
+PROBLEM: AI Optimizer shows "API error" or no response
+  FIX: Check the VITE_GROQ_API_KEY environment variable is set in Render.
+       Must start with "gsk_" — get a key at https://console.groq.com
+
+PROBLEM: Page reloads give 404 error
+  FIX: Add the rewrite rule in Render:
+       Source: /* → Destination: /index.html → Action: Rewrite (200)
+
+PROBLEM: Publish directory not found after build
+  FIX: Confirm the publish directory path is: artifacts/lidmp/dist/public
+       (Note: NOT just "dist" — the output is inside artifacts/lidmp/dist/public)
+
+PROBLEM: Environment variable not being picked up by Vite
+  FIX: All Vite frontend env vars MUST start with VITE_ prefix
+       The key is already correctly named: VITE_GROQ_API_KEY
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QUICK REFERENCE CARD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Local build test:
+    pnpm install
+    pnpm --filter @workspace/lidmp run build
+
+  Render Build Command:
+    npm install -g pnpm && pnpm install && pnpm --filter @workspace/lidmp run build
+
+  Render Publish Directory:
+    artifacts/lidmp/dist/public
+
+  Render Environment Variable:
+    VITE_GROQ_API_KEY = gsk_YOUR_KEY_HERE
+
+  Render Rewrite Rule:
+    /* → /index.html (Rewrite 200)
+
+
+================================================================================
+END OF DEPLOYMENT GUIDE
+================================================================================

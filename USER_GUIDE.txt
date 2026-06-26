@@ -1,0 +1,372 @@
+================================================================================
+  LIDMP — LUNAR ICE DISCOVERY & MISSION PLANNING PLATFORM
+  USER GUIDE: From First Open to Full Mission Planning
+  ISRO · Bharatiya Antariksh Hackathon 2026 · Problem Statement #8
+================================================================================
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — BOOT SEQUENCE (What the user sees first)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+When the user opens the site, they land on the Boot Sequence / Loading Screen.
+
+What happens automatically:
+  - The platform initializes 7 instrument data feeds one by one:
+      DFSAR CPR    → Circular Polarization Ratio (ice signature)
+      DFSAR DOP    → Degree of Polarization
+      OHRC Camera  → High-resolution surface imagery (0.25 m/px)
+      LOLA DEM     → Digital Elevation Model from altimeter data
+      Illumination → Percentage of sunlit area near poles
+      Diviner      → Thermal mapping (surface temperatures in Kelvin)
+      LROC NAC     → Narrow-angle camera imagery (0.5 m/px)
+
+  - Each sensor shows a progress bar loading from 0 → 100%
+  - When all sensors are "NOMINAL", the user advances automatically
+
+Where the data comes from:
+  - All sensor values are pre-loaded from /src/data/sensorData.ts
+  - This file contains static JSON that mirrors real NASA/ISRO instrument
+    readings from Chandrayaan-2 and LRO (Lunar Reconnaissance Orbiter)
+  - In a production system, this file would be replaced with live API calls
+    to an ISRO data pipeline or NASA PDS archive endpoint
+
+What the user does:
+  - Simply watch the initialization — no interaction needed
+  - After ~4 seconds, a crater selection grid appears
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — CRATER SELECTION (Choose your target PSR)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A grid of Permanently Shadowed Regions (PSRs) near the lunar south pole appears.
+
+Each crater card shows:
+  - Name & coordinates (latitude/longitude)
+  - Ice confidence % (color-coded: green ≥90%, blue ≥80%, amber <80%)
+  - Diameter (km), depth (m), PSR area (%), minimum temperature (K)
+  - PSR type badge: "Doubly Shadowed" or "Permanently Shadowed"
+  - A highlight note — the key scientific reason for interest
+
+Available craters (all from real lunar south pole data):
+  Shackleton        — 89.54°S, largest confirmed ice deposit, 93% confidence
+  de Gerlache       — 88.5°S, wide rim illumination, good solar access
+  Haworth           — 87.5°S, thick regolith layer, thermal stability
+  Nobile            — 85.2°S, doubly shadowed, extreme cold traps
+  Amundsen          — 84.3°S, largest PSR floor, broadest deposit area
+  Sverdrup          — 88.1°S, near ridge, relay satellite line-of-sight
+  Faustini          — 87.1°S, deepest PSR, highest concentration
+  Slater            — 87.6°S, backup option, mid-confidence
+
+What the user does:
+  - Click any crater card to select it (highlighted with green border + glow)
+  - Scroll down the grid if needed — all craters are visible
+  - Click the "LAUNCH MISSION" button at the bottom to proceed
+
+Effect of the selection:
+  - All subsequent pages, maps, charts, and data are scoped to this crater
+  - The header always shows the selected crater name + key stats
+  - The user can NOT change crater mid-session (restart app to re-select)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — MISSION DASHBOARD (Main overview screen)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The main workspace opens. The layout is:
+  - Left: collapsible sidebar with 9 page links
+  - Top: header bar with crater name, ice confidence, and launch date
+  - Center: page content area (starts on Dashboard)
+
+Dashboard sections:
+  1. METRICS STRIP (top row, 5 cards)
+     - Crater name, ice volume estimate, ice confidence %, launch window, status
+     - These are summary numbers for the selected crater
+
+  2. SENSOR ARRAY (7 instrument flip cards)
+     - Front side: live sensor value + confidence progress bar
+     - Flip the card (click it) to see Proof of Concept on the back:
+         → What method was used to reach this reading
+         → What threshold confirms ice presence
+     - Data source: /src/data/sensorData.ts (sensorReadings array)
+
+  3. AI AGENT PANELS (4 flip cards, 2×2 grid)
+     - Each card represents one AI analysis agent
+     - Front: key outputs of that agent (live numbers, bars, status)
+     - Flip the card to see the methodology on the back
+     - Agents: Ice Detection · Landing Site · Rover Path · Risk Assessment
+
+Navigation:
+  - Use the left sidebar to jump to any detailed page
+  - The sidebar can be collapsed to icon-only mode (click the arrow toggle)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 4 — 2D LUNAR MAP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Navigate: Sidebar → "2D Lunar Map"
+
+What the user sees:
+  - A top-down polar projection of the lunar south pole
+  - PSR zones shown as shaded regions
+  - Landing site candidates plotted as markers
+  - Ice deposit heatmap overlay (CPR intensity)
+  - Rover traverse path drawn as a connected waypoint line
+
+How to use:
+  - The map is pre-rendered for the selected crater
+  - Hover over markers to see site details (name, safety score, ice %)
+  - The ice overlay uses color intensity to show deposit concentration
+  - The traverse line shows the planned A*-optimized rover path
+
+Data source:
+  - Map geometry: /src/data/sensorData.ts (landingSites, roverWaypoints)
+  - PSR shading: derived from illumination fraction data (LOLA + Diviner)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 5 — 3D SIMULATOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Navigate: Sidebar → "3D Simulator"
+
+What the user sees:
+  - An interactive Three.js globe of the Moon
+  - The south pole PSR rendered as a dark shaded region
+  - Landing site marker + rover traverse path in 3D
+  - Animated sun position (based on Metonic cycle geometry)
+  - Illumination cone showing the solar angle over time
+
+How to use:
+  - Click and drag to rotate the globe
+  - Scroll to zoom in/out
+  - Use the time slider (if present) to simulate lunar day/night cycle
+
+Data source:
+  - Three.js renders the geometry locally in the browser
+  - Lunar surface texture: standard NASA moon texture map
+  - PSR coordinates: from sensorData.ts crater latitude/longitude
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 6 — ICE DETECTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Navigate: Sidebar → "Ice Detection"
+
+What the user sees:
+  - DFSAR instrument readings: CPR value + DOP value
+  - Depth profile bar chart (1–3 m subsurface layers)
+  - Ice volume estimate in m³
+  - Evidence confidence breakdown (multi-instrument cross-validation)
+  - Agent card: click "RE-RUN ANALYSIS" to simulate a fresh scan
+
+How the ice detection works (shown in the flip cards):
+  - CPR (Circular Polarization Ratio) > 1.8 = ice signature
+    (Spudis et al. 2013 threshold from MINI-RF data)
+  - DOP (Degree of Polarization) < 0.3 = volumetric scattering
+    (confirms buried ice, not surface roughness)
+  - Both thresholds must be met simultaneously for confirmation
+  - Current reading: CPR = 2.14 ✓, DOP = 0.07 ✓ → 93% confidence
+
+Data source:
+  - /src/data/sensorData.ts → sensorReadings (id: "dfsar", "dfsar-dop")
+  - Physical model: LRO MINI-RF + Chandrayaan-1 Mini-SAR published literature
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 7 — LANDING SITES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Navigate: Sidebar → "Landing Sites"
+
+What the user sees:
+  - A ranked list of candidate landing sites for the selected crater
+  - Each site has: safety score, slope angle, illumination %, thermal variance
+  - Status badges: PRIMARY / BACKUP / REJECTED
+  - Flip cards: front shows the scores, back shows the scoring methodology
+
+Scoring methodology (flip card back):
+  - Weighted multi-criteria analysis:
+      Safety Score = 40% slope + 35% ice confidence + 15% illumination + 10% comms
+  - LOLA DEM slope analysis at 5 m/pixel resolution
+  - Sites with slope > 5° are automatically rejected
+  - Illumination requirement: > 18% average (to charge solar panels)
+
+Data source:
+  - /src/data/sensorData.ts → landingSites array
+  - LS-01 (Shackleton Rim Alpha): primary, 94% safety, 89.54°S
+  - LS-02 (Shackleton Rim Beta):  backup,  78% safety, 89.47°S
+  - LS-03 (Shackleton Inner):     rejected, 61% safety (too steep)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 8 — ROVER PATH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Navigate: Sidebar → "Rover Path"
+
+What the user sees:
+  - A list of 6 waypoints from START → END
+  - Each waypoint shows: distance from previous (km), solar hours available
+  - Waypoint types: start, waypoint, science stop, end
+  - Solar window visualization: 24-hour bar showing illuminated hours
+  - "OPTIMIZE TRAVERSE" button re-runs the path planning simulation
+
+Planning algorithm:
+  - A* pathfinding on the LOLA DEM terrain grid
+  - Constraint: rover stays within the 18.3% sunlit corridor
+  - Energy budget: 450 Wh/km (based on Chandrayaan-2 rover heritage)
+  - Two science stops at DFSAR anomaly sites (highest ice signal zones)
+  - Total path: 5.8 km · 15.6 solar hours
+
+Data source:
+  - /src/data/sensorData.ts → roverWaypoints array
+  - Solar window: Mazarico 2011 illumination model at 240 m/pixel
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 9 — RISK ASSESSMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Navigate: Sidebar → "Risk Assessment"
+
+What the user sees:
+  - Overall mission safety score (donut chart, 0–100%)
+  - 6 risk factor flip cards in a 2×3 grid
+  - Each card front: risk name, score %, severity badge, detail text
+  - Each card back: model used, data sources, formula, step-by-step process
+
+The 6 risk factors:
+  Factor           Score    Severity   Standard
+  ─────────────────────────────────────────────
+  Terrain Safety    13%      LOW        LROC NAC boulder density
+  Solar Power       24%      MEDIUM     Diviner illumination model
+  Thermal            9%      LOW        Diviner Channel 3–5 model
+  Communication     18%      MEDIUM     DSN link budget JPL 810-005
+  Dust Accum.       32%      MEDIUM     LRO LAMP dust levitation
+  Cosmic Rad.       27%      LOW        LRO CRaTER GCR flux
+
+  Overall: 77% safe → MISSION GO (MIL-STD-882E compliant)
+
+Data source:
+  - /src/data/sensorData.ts → riskFactors array
+  - /src/pages/RiskAssessment.tsx → riskMeta (models, formulas, processes)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 10 — AI OPTIMIZER (Groq LLaMA 3.3 70B)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Navigate: Sidebar → "AI Optimizer"
+
+What the user sees:
+  - A chat interface powered by Groq's LLaMA 3.3 70B model
+  - Preset question chips for quick access:
+      "Optimal launch window for September 2026?"
+      "Analyze ice deposit at Shackleton Rim Alpha"
+      "Improve the rover traverse path"
+      "Top 3 risks for this south pole mission"
+      "Compare LS-01 vs LS-02 success probability"
+  - A text input box for free-form questions
+  - AI responses rendered with markdown formatting (bold, lists, headings)
+
+What the AI knows:
+  - It is given a system prompt with the full mission context:
+      target crater, ice confidence, safety score, launch date, sol count
+  - It has domain knowledge of ISRO/NASA terminology, orbital mechanics,
+    DFSAR/CPR/DOP analysis, risk standards (MIL-STD-882E), and
+    lunar south pole mission planning
+
+How to get the best responses:
+  - Ask specific, technical questions
+  - Reference real values from the dashboard (e.g. "CPR is 2.14, what does that mean?")
+  - Ask for comparisons: "Which is riskier — thermal or radiation?"
+  - Ask for recommendations: "Should we use LS-01 or LS-02?"
+
+API setup required:
+  - Environment variable: VITE_GROQ_API_KEY (set in Replit Secrets)
+  - Model: llama-3.3-70b-versatile
+  - Endpoint: https://api.groq.com/openai/v1/chat/completions
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 11 — REPORTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Navigate: Sidebar → "Reports"
+
+What the user sees:
+  - A printable mission summary document
+  - Sections: crater overview, ice detection results, landing site ranking,
+    rover path summary, risk factor table, mission GO/NO-GO status
+  - All data pulled from the same sensorData.ts source
+
+Use case:
+  - Generate a formatted report for submission or presentation
+  - Data stays consistent across all pages (single source of truth)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHERE ALL DATA COMES FROM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+All data in the platform flows from one central file:
+
+  /artifacts/lidmp/src/data/sensorData.ts
+
+This file exports:
+  sensorReadings    — 7 instrument readings (CPR, DOP, OHRC, LOLA, etc.)
+  landingSites      — 3 candidate sites with full scoring data
+  missionMetrics    — Launch date, mission duration, delta-V budget
+  riskFactors       — 6 risk categories with scores and severity
+  roverWaypoints    — 6 traverse waypoints with distances and solar hours
+  lunarCraters      — 8 PSR crater options with scientific metadata
+
+To update data for a real mission:
+  - Replace static values in sensorData.ts with API fetch calls
+  - Point the API to ISRO's data pipeline or NASA PDS (Planetary Data System)
+  - sensorReadings.value fields accept strings — update them in real-time
+    by calling the Groq API or a backend server that processes raw instrument feeds
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FULL USER JOURNEY SUMMARY (Start to End)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Open site
+    ↓
+  Watch sensor initialization (automatic, ~4 seconds)
+    ↓
+  Select target crater (Shackleton recommended for highest ice confidence)
+    ↓
+  Click "LAUNCH MISSION"
+    ↓
+  Review Mission Dashboard
+    → Flip sensor cards for instrument proof
+    → Flip agent cards for methodology
+    ↓
+  Go to 2D Map → see crater layout, landing sites, ice heatmap, rover path
+    ↓
+  Go to 3D Simulator → rotate globe, visualize PSR and solar geometry
+    ↓
+  Go to Ice Detection → review CPR/DOP readings, confirm ice presence
+    ↓
+  Go to Landing Sites → review ranked candidates, select PRIMARY site
+    ↓
+  Go to Rover Path → review traverse plan, click "OPTIMIZE TRAVERSE"
+    ↓
+  Go to Risk Assessment → flip each risk card, review models and formulas
+    ↓
+  Go to AI Optimizer → ask mission-specific questions, get AI recommendations
+    ↓
+  Go to Reports → generate and review final mission summary document
+    ↓
+  Mission Planning Complete — LIDMP outputs a GO for Chandrayaan-4 south pole
+
+
+================================================================================
+END OF USER GUIDE
+================================================================================

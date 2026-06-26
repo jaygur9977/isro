@@ -14,28 +14,24 @@ import RoverPath from "./pages/RoverPath";
 import RiskAssessment from "./pages/RiskAssessment";
 import AIOptimizer from "./pages/AIOptimizer";
 import Reports from "./pages/Reports";
-import Wireframe from "./pages/Wireframe";
-import Architecture from "./pages/Architecture";
 import type { LunarCrater } from "./data/sensorData";
 
 const queryClient = new QueryClient();
 
-type PageId = "dashboard"|"map2d"|"sim3d"|"ice"|"landing"|"rover"|"risk"|"ai"|"reports"|"wireframe"|"architecture";
+type PageId = "dashboard"|"map2d"|"sim3d"|"ice"|"landing"|"rover"|"risk"|"ai"|"reports";
 
 function PageContent({ page, crater }: { page: PageId; crater: LunarCrater }) {
   switch (page) {
-    case "dashboard":    return <Dashboard crater={crater} />;
-    case "map2d":        return <Map2D crater={crater} />;
-    case "sim3d":        return <Simulator3D />;
-    case "ice":          return <IceDetection />;
-    case "landing":      return <LandingSites />;
-    case "rover":        return <RoverPath />;
-    case "risk":         return <RiskAssessment />;
-    case "ai":           return <AIOptimizer />;
-    case "reports":      return <Reports />;
-    case "wireframe":    return <Wireframe />;
-    case "architecture": return <Architecture />;
-    default:             return <Dashboard crater={crater} />;
+    case "dashboard": return <Dashboard crater={crater} />;
+    case "map2d":     return <Map2D crater={crater} />;
+    case "sim3d":     return <Simulator3D />;
+    case "ice":       return <IceDetection />;
+    case "landing":   return <LandingSites />;
+    case "rover":     return <RoverPath />;
+    case "risk":      return <RiskAssessment />;
+    case "ai":        return <AIOptimizer />;
+    case "reports":   return <Reports />;
+    default:          return <Dashboard crater={crater} />;
   }
 }
 

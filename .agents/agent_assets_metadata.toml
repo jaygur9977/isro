@@ -1,0 +1,14 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "bbaaj7arsoQzVZISgYhfQ"
+uri = "file://USER_GUIDE.txt"
+type = "text"
+title = "LIDMP User Guide — Start to End"
+
+[[outputs]]
+id = "ajhyKhJrdWwIvvlUpULoD"
+uri = "file://DEPLOYMENT_RENDER.txt"
+type = "text"
+title = "Deploy on Render.com — Commands & Guide"
