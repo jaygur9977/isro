@@ -106,9 +106,9 @@ export default function AIOptimizer() {
               style={{ background:msg.role==="user"?"linear-gradient(135deg,#dbeafe,#d1fae5)":"linear-gradient(135deg,#ede9fe,#fce7f3)", color:msg.role==="user"?"#1e40af":"#5b21b6" }}>
               {msg.role==="user"?"YOU":"AI"}
             </div>
-            <div className="flex-1 p-3 rounded-xl text-xs font-mono leading-relaxed"
+            <div className="flex-1 p-3 rounded-xl text-xs leading-relaxed"
               style={{ background:msg.role==="user"?"linear-gradient(135deg,#f0f9ff,#f0fdf4)":"linear-gradient(135deg,#faf5ff,#fdf2f8)", border:`1px solid ${msg.role==="user"?"rgba(14,165,233,.15)":"rgba(139,92,246,.15)"}`, color:"#1e293b", maxWidth:"85%" }}>
-              <pre className="whitespace-pre-wrap text-[11px] leading-relaxed font-mono">{msg.content}</pre>
+              <div className="text-[11px] leading-relaxed font-mono whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }} />
             </div>
           </div>
         ))}
