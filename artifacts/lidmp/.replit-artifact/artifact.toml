@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "LIDMP — Lunar Mission Planning"
+version = "1.0.0"
+id = "artifacts/lidmp"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24639
+
+[services.development]
+run = "pnpm --filter @workspace/lidmp run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/lidmp", "run", "build" ]
+publicDir = "artifacts/lidmp/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24639"
+BASE_PATH = "/"
