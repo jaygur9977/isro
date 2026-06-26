@@ -5,6 +5,22 @@ interface Message { role:"user"|"assistant"; content:string; }
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
+function renderMarkdown(text: string): string {
+  return text
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/`(.+?)`/g, "<code style='background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:10px'>$1</code>")
+    .replace(/^#{3}\s(.+)$/gm, "<div style='font-family:Orbitron,sans-serif;font-size:9px;font-weight:700;color:#5b21b6;margin:6px 0 2px'>$1</div>")
+    .replace(/^#{2}\s(.+)$/gm, "<div style='font-family:Orbitron,sans-serif;font-size:10px;font-weight:800;color:#5b21b6;margin:8px 0 3px'>$1</div>")
+    .replace(/^#{1}\s(.+)$/gm, "<div style='font-family:Orbitron,sans-serif;font-size:11px;font-weight:900;color:#5b21b6;margin:8px 0 4px'>$1</div>")
+    .replace(/^[-•]\s(.+)$/gm, "<div style='display:flex;gap:6px;margin:2px 0'><span style='color:#8b5cf6;flex-shrink:0'>▸</span><span>$1</span></div>")
+    .replace(/^\d+\.\s(.+)$/gm, "<div style='margin:2px 0'>$1</div>")
+    .replace(/\n\n/g, "<br/><br/>")
+    .replace(/\n/g, "<br/>");
+}
+
 const SYSTEM_PROMPT = `You are LIDMP-AI, an expert ISRO mission planning assistant for Chandrayaan-4 lunar south pole operations. You have deep knowledge of:
 - Lunar ice detection: DFSAR CPR/DOP analysis, Diviner thermal mapping, LOLA DEM data
 - Landing site selection: slope constraints (<5°), illumination >60%, thermal stability
