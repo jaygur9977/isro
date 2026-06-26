@@ -1,0 +1,14 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "iSXOAayO9WTmHsjO521Hs"
+uri = "file://Assets_jay/wireframe.jpg"
+type = "image"
+title = "LIDMP — UI Wireframes (1920×1080)"
+
+[[outputs]]
+id = "OMUEeEpUNwzuXdFRdyut2"
+uri = "file://Assets_jay/architecture.jpg"
+type = "image"
+title = "LIDMP — System Architecture (1920×1080)"
